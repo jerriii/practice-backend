@@ -1,5 +1,6 @@
-import Category, { ICategory } from "../models/category.model";
-import mongoose, { FilterQuery, Types } from "mongoose";
+import mongoose, { FilterQuery } from "mongoose";
+import Category from "./categories.model";
+import { ICategory } from "./categories.interface";
 
 export class CategoryRepository {
   constructor() {}

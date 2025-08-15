@@ -1,7 +1,7 @@
 import express from "express";
 import DynamicUpload from "../middlewares/upload";
 import validators from "../middlewares/validators";
-import { createSubCategoryController } from "../controllers/subcategory.controller";
+import { createSubCategoryController } from "./subcategories.controller";
 
 const router = express.Router();
 

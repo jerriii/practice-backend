@@ -1,15 +1,7 @@
 import mongoose from "mongoose";
+import { ISubCategory } from "./subcategories.interface";
 
-export type ISubCategory = {
-  name: string;
-  description: string;
-  categoryId: mongoose.Schema.Types.ObjectId | string;
-  productCount: number;
-  subCategoryImage: string;
-  isActive: boolean;
-};
-
-const subCategorySchema = new mongoose.Schema(
+const subCategorySchema = new mongoose.Schema<ISubCategory>(
   {
     name: {
       type: String,

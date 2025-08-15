@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
-import SubCategory, { ISubCategory } from "../models/subcategory.model";
+import SubCategory from "./subcategories.model";
+import { ISubCategory } from "./subcategories.interface";
 
 export class SubCategoryRepository {
   constructor() {}

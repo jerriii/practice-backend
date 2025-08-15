@@ -1,7 +1,7 @@
 import { body, Meta } from "express-validator";
-import Category from "../models/category.model";
 import { ValidationError } from "../error";
-import SubCategory from "../models/subcategory.model";
+import Category from "../categories/categories.model";
+import SubCategory from "../subcategories/subcategories.model";
 
 class Validator {
   private static instance: Validator;

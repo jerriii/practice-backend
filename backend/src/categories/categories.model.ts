@@ -1,14 +1,5 @@
 import mongoose from "mongoose";
-
-export interface ICategory {
-  _id: mongoose.Types.ObjectId;
-  name: string;
-  slug: string;
-  description: string;
-  categoryImage: string;
-  productCount?: number;
-  isActive: boolean;
-}
+import { ICategory } from "./categories.interface";
 
 const categorySchema = new mongoose.Schema(
   {

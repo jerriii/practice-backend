@@ -1,13 +1,13 @@
+import { Request } from "express";
 import { validationResult } from "express-validator";
-import { ISubCategory } from "../models/subcategory.model";
-import { SubCategoryRepository } from "../repositories/subcategory.repository";
+import { SubCategoryRepository } from "./subcategories.repository";
 import { safeDeleteFile } from "../utils/handleFiles";
 import { NotFoundError, ValidationError } from "../error";
 import { getUpdatedFields, processBooleanField } from "../utils/objectUtils";
 import { getAbsolutePath, getRelativePath } from "../config/paths";
-import { Request } from "express";
-import Category from "../models/category.model";
+import Category from "../categories/categories.model";
 import { handleError } from "../utils/handleError";
+import { ISubCategory } from "./subcategories.interface";
 
 export class SubCategoryServices {
   constructor(private subCategoryRepository: SubCategoryRepository) {}

@@ -1,20 +1,19 @@
-import { NotFoundError, ValidationError } from "../error";
-import Category, { ICategory } from "../models/category.model";
-import { CategoryRepository } from "../repositories/category.repository";
-import { safeDeleteFile } from "../utils/handleFiles";
-import { getAbsolutePath, getRelativePath } from "../config/paths";
 import { Request } from "express";
-import { validationResult } from "express-validator";
 import fs from "fs";
-import { getUpdatedFields, processBooleanField } from "../utils/objectUtils";
-import { SubCategoryRepository } from "../repositories/subcategory.repository";
+import { validationResult } from "express-validator";
 import mongoose, { FilterQuery } from "mongoose";
+import { CategoryRepository } from "./categories.repository";
+import { NotFoundError, ValidationError } from "../error";
+import { getAbsolutePath, getRelativePath } from "../config/paths";
+import { safeDeleteFile } from "../utils/handleFiles";
+import { getUpdatedFields, processBooleanField } from "../utils/objectUtils";
+import Category from "./categories.model";
+import { SubCategoryRepository } from "../subcategories/subcategories.repository";
+import { ICategory, ICategoryKeyValue } from "./categories.interface";
+import { CategoriesDto } from "./categories.dto";
 
 interface CategoriesResult {
-  data: Array<{
-    name: string;
-    value: string;
-  }>;
+  data: Array<ICategoryKeyValue>;
   pagination: {
     limit: number;
     hasMore: boolean;
@@ -35,7 +34,7 @@ export class CategoryServices {
       );
     if (subCategoriesCount > 0) {
       throw new ValidationError(
-        `Cannot delete. ${subCategoriesCount} subcategories linked.`
+        `Cannot delete. One or more subcategories linked.`
       );
     }
     const category = await this.repository.getCategoryItemById(req.params.id);
@@ -90,7 +89,9 @@ export class CategoryServices {
     };
 
     try {
-      return await this.repository.create(dataToSave);
+      const savedCategory = await this.repository.create(dataToSave);
+      console.log("Category created successfully:", savedCategory);
+      return new CategoriesDto(savedCategory);
     } catch (error) {
       // Clean up uploaded file if database operation fails
       await safeDeleteFile(req.file.path);
@@ -144,7 +145,7 @@ export class CategoryServices {
       await safeDeleteFile(oldImagePath);
     }
 
-    return updated;
+    return new CategoriesDto(updated);
   }
 
   async getAllCategories(queryParams: any) {
@@ -169,7 +170,7 @@ export class CategoryServices {
     ]);
 
     return {
-      data: categories,
+      data: CategoriesDto.mapList(categories),
       pagination: {
         page,
         limit,
@@ -221,10 +222,7 @@ export class CategoryServices {
 
     // Return structured result
     return {
-      data: resultCategories.map((c) => ({
-        name: c.name,
-        value: c._id.toString(),
-      })),
+      data: CategoriesDto.keyValueMap(resultCategories),
       pagination: {
         limit,
         hasMore,
@@ -234,6 +232,8 @@ export class CategoryServices {
   }
 
   async getCategoryById(id: string) {
-    return await this.repository.getCategoryItemById(id);
+    const category = await this.repository.getCategoryItemById(id);
+    if (!category) throw new NotFoundError("Category not found");
+    return new CategoriesDto(category);
   }
 }

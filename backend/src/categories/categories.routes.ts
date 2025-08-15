@@ -1,7 +1,7 @@
 import express from "express";
+import { createCategoryController } from "./categories.controller";
 import DynamicUpload from "../middlewares/upload";
 import validators from "../middlewares/validators";
-import { createCategoryController } from "../controllers/category.controller";
 
 const router = express.Router();
 const controller = createCategoryController();

@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { handleError } from "../utils/handleError";
 import { safeDeleteFile } from "../utils/handleFiles";
 import { sendResponse } from "../utils/sendResponse";
-import { SubCategoryServices } from "../services/subcategory.services";
-import { SubCategoryRepository } from "../repositories/subcategory.repository";
+import { SubCategoryServices } from "./subcategories.services";
+import { SubCategoryRepository } from "./subcategories.repository";
 class SubCategoryController {
   constructor(private subCategoryService: SubCategoryServices) {}
 

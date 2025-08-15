@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { CategoryServices } from "../services/category.services";
-import { handleError } from "../utils/handleError";
-import { safeDeleteFile } from "../utils/handleFiles";
+import { CategoryServices } from "./categories.services";
 import { sendResponse } from "../utils/sendResponse";
-import { SubCategoryRepository } from "../repositories/subcategory.repository";
-import { CategoryRepository } from "../repositories/category.repository";
+import { safeDeleteFile } from "../utils/handleFiles";
+import { handleError } from "../utils/handleError";
+import { CategoryRepository } from "./categories.repository";
+import { SubCategoryRepository } from "../subcategories/subcategories.repository";
 
 class CategoryController {
   constructor(private categoryService: CategoryServices) {}
