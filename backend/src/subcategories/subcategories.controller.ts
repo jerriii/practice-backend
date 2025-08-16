@@ -15,7 +15,7 @@ class SubCategoryController {
         status: "success",
         code: 201,
         message: "Category created successfully",
-        data: savedCategory,
+        data: savedCategory.toResponse(),
       });
     } catch (error) {
       if (req.file) {
@@ -34,7 +34,7 @@ class SubCategoryController {
         status: "success",
         code: 200,
         message: "SubCategories retrieved successfully",
-        data: result.data,
+        data: result.data.map((item) => item.toResponse()),
         pagination: result.pagination,
       });
     } catch (error) {
@@ -51,7 +51,7 @@ class SubCategoryController {
         status: "success",
         code: 200,
         message: "Category retrieved successfully",
-        data: category,
+        data: category.toResponse(),
       });
     } catch (error) {
       handleError.handle(res, error);
@@ -66,7 +66,7 @@ class SubCategoryController {
         status: "success",
         code: 200,
         message: "Category updated successfully",
-        data: updatedCategory,
+        data: updatedCategory.toResponse(),
       });
     } catch (error) {
       if (req.file) {

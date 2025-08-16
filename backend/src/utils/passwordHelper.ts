@@ -4,9 +4,8 @@ import bcrypt from "bcryptjs";
 class passwordHelper {
   async hashPassword(password: string): Promise<string> {
     try {
-      const salt = await bcrypt.genSalt(10); // Generate a salt for stronger hashing
-      const hashedPassword = await bcrypt.hash(password, salt); // Hash the password with the salt
-      return hashedPassword;
+      const salt = await bcrypt.genSalt(10);
+      return bcrypt.hash(password, salt);
     } catch (error) {
       throw new Error("Error hashing password");
     }

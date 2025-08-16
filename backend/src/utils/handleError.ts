@@ -104,18 +104,6 @@ class ErrorHandler {
       message: "An unknown error occurred",
     });
   }
-
-  public async handleValidationErrors(req: Request): Promise<void> {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      if (req.file) await safeDeleteFile(req.file.path);
-      const errorDetails = errors.array().map((err) => ({
-        field: err.type === "field" ? err.path : "unknown",
-        message: err.msg,
-      }));
-      throw new ValidationError("Invalid entries", errorDetails);
-    }
-  }
 }
 
 export const handleError = ErrorHandler.getInstance();

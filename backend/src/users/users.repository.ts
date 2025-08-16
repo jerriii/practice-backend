@@ -1,6 +1,7 @@
-import User, { IUser } from "./users.model";
+import { IUser } from "./users.interface";
+import User from "./users.model";
 
-class UserRepository {
+export class UserRepository {
   async createUser(userData: Partial<IUser>): Promise<IUser> {
     return await User.create(userData);
   }
@@ -24,5 +25,3 @@ class UserRepository {
     return await User.find();
   }
 }
-
-export default new UserRepository();

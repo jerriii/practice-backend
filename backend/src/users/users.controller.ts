@@ -1,71 +1,134 @@
 import { Request, Response } from "express";
-import UserServices from "../services/user.services";
+import { UserServices } from "./users.services";
+import { UserRepository } from "./users.repository";
+import { sendResponse } from "../utils/sendResponse";
+import { handleError } from "../utils/handleError";
+import { ValidationError } from "../error";
+
+export interface JwtUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
 
 class UserController {
-  async register(req: Request, res: Response) {
+  constructor(private userServices: UserServices) {}
+
+  register = async (req: Request, res: Response) => {
     try {
-      const user = await UserServices.registerUser(req.body);
-      res.status(201).json({ message: "User registered successfully", user });
+      const user = await this.userServices.registerUser(req);
+      sendResponse(res, {
+        status: "success",
+        code: 201,
+        message: "User registered successfully",
+        data: user.toResponse(),
+      });
     } catch (error) {
       if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
+        handleError.handle(res, error);
       } else {
-        res.status(400).json({ error: "An unknown error occurred" });
+        handleError.handle(res, new Error("An unknown error occurred"));
       }
     }
-  }
-  async login(req: Request, res: Response) {
+  };
+  login = async (req: Request, res: Response) => {
     try {
-      const { email, password } = req.body;
-      const token = await UserServices.loginUser(email, password);
-      res.status(200).json({ message: "User Logged In Successfully", data:token });
-    } catch(error) {
+      const data = await this.userServices.loginUser(req);
+      sendResponse(res, {
+        status: "success",
+        code: 200,
+        message: "User Logged In Successfully",
+        data,
+      });
+    } catch (error) {
       if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
+        handleError.handle(res, error);
+      } else {
+        handleError.handle(res, new Error("Internal Server Error"));
       }
-      res.status(500).json({ error: "Internal Server Error" });
     }
-  }
-  async getAllUsers(req: Request, res: Response) {
-    const users = await UserServices.getAllUsers();
-    res.status(200).json({ message: "Users List", users });
-  }
-  async getUserById(req: Request, res: Response) {
+  };
+  getCurrentUser = async (req: Request, res: Response) => {
+    const user = await this.userServices.getCurrentUser(
+      (req.user as JwtUser).id
+    );
+    if (user) {
+      sendResponse(res, {
+        status: "success",
+        code: 200,
+        message: "Current User fetched Successfully",
+        data: user.toResponse(),
+      });
+    } else {
+      handleError.handle(res, new ValidationError("User not found"));
+    }
+  };
+  getAllUsers = async (req: Request, res: Response) => {
+    const users = await this.userServices.getAllUsers();
+    sendResponse(res, {
+      status: "success",
+      code: 200,
+      message: "Users List",
+      data: users.map((user) => user.toResponse()),
+    });
+  };
+  getUserById = async (req: Request, res: Response) => {
     if (
       !req.user ||
       typeof req.user !== "object" ||
       req.user.id !== req.params.userId
     ) {
-      res.status(403).json({ error: "Forbidden: Access denied" });
+      throw new ValidationError("Forbidden: Access denied");
     }
 
-    const user = await UserServices.getUserById(req.params.userId);
+    const user = await this.userServices.getUserById(req.params.userId);
     if (user) {
-      res.status(200).json({ message: "User fetched Successfully", user });
+      sendResponse(res, {
+        status: "success",
+        code: 200,
+        message: "User fetched Successfully",
+        data: user.toResponse(),
+      });
     } else {
-      res.status(404).json({ error: "User not found" });
+      handleError.handle(res, new ValidationError("User not found"));
     }
-  }
-  async updateUser(req: Request, res: Response) {
+  };
+  updateUser = async (req: Request, res: Response) => {
     try {
-      const user = await UserServices.updateUser(req.params.userId, req.body);
-      res.status(200).json({ message: "User updated successfully", user });
+      const user = await this.userServices.updateUser(req.params.userId, req);
+      sendResponse(res, {
+        status: "success",
+        code: 200,
+        message: "User updated successfully",
+        data: user.toResponse(),
+      });
     } catch (error) {
       if (error instanceof Error) {
-        res.status(400).json({ error: error.message });
+        handleError.handle(res, error);
       } else {
-        res.status(400).json({ error: "An unknown error occurred" });
+        handleError.handle(res, new Error("An unknown error occurred"));
       }
     }
-  }
-  async deleteUser(req: Request, res: Response) {
-    const user = await UserServices.deleteUser(req.params.userId);
+  };
+  deleteUser = async (req: Request, res: Response) => {
+    const user = await this.userServices.deleteUser(req.params.userId);
     if (user) {
-      res.status(200).json({ message: "User deleted successfully", user });
+      sendResponse(res, {
+        status: "success",
+        code: 200,
+        message: "User deleted successfully",
+      });
     } else {
-      res.status(404).json({ error: "User not found" });
+      handleError.handle(res, new ValidationError("User not found"));
     }
-  }
+  };
 }
 
-export default new UserController();
+function CreateUserController() {
+  const userRepository = new UserRepository();
+  const userServices = new UserServices(userRepository);
+  return new UserController(userServices);
+}
+
+export const userController = CreateUserController();

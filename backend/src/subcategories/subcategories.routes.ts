@@ -20,7 +20,7 @@ router.post(
 );
 
 router.get("/", controller.getAllSubCategories);
-
+router.get("/:id", controller.getSubCategoryById);
 router.put(
   "/update/:id",
   new DynamicUpload({
@@ -32,8 +32,6 @@ router.put(
   validators.validateSubCategoryUpdate,
   controller.updateSubCategory
 );
-
 router.delete("/delete/:id", controller.deleteSubCategory);
-router.get("/:id", controller.getSubCategoryById);
 
 export default router;

@@ -16,7 +16,7 @@ class CategoryController {
         status: "success",
         code: 201,
         message: "Category created successfully",
-        data: savedCategory,
+        data: savedCategory.toResponse(),
       });
     } catch (error) {
       if (req.file) {
@@ -35,7 +35,7 @@ class CategoryController {
         status: "success",
         code: 200,
         message: "Category fetched successfully",
-        data: category,
+        data: category.toResponse(),
       });
     } catch (error) {
       handleError.handle(res, error);
@@ -49,7 +49,7 @@ class CategoryController {
         status: "success",
         code: 200,
         message: "Categories retrieved successfully",
-        data: result.data,
+        data: result.data.map((category) => category.toResponse()),
         pagination: result.pagination,
       });
     } catch (error) {
@@ -84,7 +84,7 @@ class CategoryController {
         status: "success",
         code: 200,
         message: "Category updated successfully",
-        data: category,
+        data: category.toResponse(),
       });
     } catch (error) {
       handleError.handle(res, error);
@@ -93,12 +93,11 @@ class CategoryController {
 
   deleteCategory = async (req: Request, res: Response) => {
     try {
-      const category = await this.categoryService.deleteCategory(req);
+      await this.categoryService.deleteCategory(req);
       sendResponse(res, {
         status: "success",
         code: 200,
         message: "Category deleted successfully",
-        data: category,
       });
     } catch (error) {
       handleError.handle(res, error);

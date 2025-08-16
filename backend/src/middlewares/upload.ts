@@ -9,7 +9,7 @@ interface IDynamicUploadConfig {
   fieldName: string;
   allowedMimeTypes?: string[];
   fileSizeLimit?: number;
-  uploadType?: "single" | "multiple";
+  uploadType?: "single" | "multiple" | "none";
   uploadLimit?: number;
 }
 
@@ -17,7 +17,7 @@ class DynamicUpload {
   private fieldName: string;
   private allowedMimeTypes: string[];
   private fileSizeLimit: number;
-  private uploadType: "single" | "multiple";
+  private uploadType: "single" | "multiple" | "none";
   private uploadLimit: number;
   private upload: Multer;
 
@@ -47,7 +47,7 @@ class DynamicUpload {
     return multer.diskStorage({
       destination: async (req: Request, file, cb) => {
         const dynamicDir = this.getDynamicDirectory(req);
-        const safeDir = dynamicDir.replace(/\.\./g, '');
+        const safeDir = dynamicDir.replace(/\.\./g, "");
         const fullPath = path.join(await this.getUploadPath(), safeDir);
 
         if (!fs.existsSync(fullPath)) {
@@ -116,6 +116,10 @@ class DynamicUpload {
     return this.upload.single(this.fieldName);
   }
 
+  private getNoneImageMiddleware() {
+    return this.upload.none();
+  }
+
   // Get multiple image middleware
   private getMultipleImageMiddleware(limit: number = 10) {
     return this.upload.array(this.fieldName, limit);
@@ -140,6 +144,9 @@ class DynamicUpload {
   handle() {
     if (this.uploadType === "multiple") {
       return this.getMultipleImageMiddleware(this.uploadLimit);
+    }
+    if (this.uploadType === "none") {
+      return this.getNoneImageMiddleware();
     }
     return this.getSingleImageMiddleware();
   }

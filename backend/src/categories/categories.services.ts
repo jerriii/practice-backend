@@ -11,6 +11,7 @@ import Category from "./categories.model";
 import { SubCategoryRepository } from "../subcategories/subcategories.repository";
 import { ICategory, ICategoryKeyValue } from "./categories.interface";
 import { CategoriesDto } from "./categories.dto";
+import { validateRequest } from "../utils/validateRequest";
 
 interface CategoriesResult {
   data: Array<ICategoryKeyValue>;
@@ -54,17 +55,7 @@ export class CategoryServices {
   }
 
   async createCategory(req: Request) {
-    const errors = validationResult(req);
-
-    //Check if validation errors exist
-    if (!errors.isEmpty()) {
-      if (req.file) await safeDeleteFile(req.file.path);
-      const errorDetails = errors.array().map((err) => ({
-        field: err.type === "field" ? err.path : "unknown",
-        message: err.msg,
-      }));
-      throw new ValidationError("Invalid entries", errorDetails);
-    }
+    await validateRequest(req);
 
     //Check if image is uploaded
     if (!req.file) {
@@ -91,7 +82,7 @@ export class CategoryServices {
     try {
       const savedCategory = await this.repository.create(dataToSave);
       console.log("Category created successfully:", savedCategory);
-      return new CategoriesDto(savedCategory);
+      return CategoriesDto.fromEntity(savedCategory);
     } catch (error) {
       // Clean up uploaded file if database operation fails
       await safeDeleteFile(req.file.path);
@@ -100,17 +91,7 @@ export class CategoryServices {
   }
 
   async updateCategory(req: Request) {
-    const errors = validationResult(req);
-
-    // Handle validation errors
-    if (!errors.isEmpty()) {
-      if (req.file) await safeDeleteFile(req.file.path);
-      const errorDetails = errors.array().map((err) => ({
-        field: err.type === "field" ? err.path : "unknown",
-        message: err.msg,
-      }));
-      throw new ValidationError("Invalid entries", errorDetails);
-    }
+    await validateRequest(req);
 
     // Find existing category
     const existing = await this.repository.getCategoryItemById(req.params.id);
@@ -145,7 +126,7 @@ export class CategoryServices {
       await safeDeleteFile(oldImagePath);
     }
 
-    return new CategoriesDto(updated);
+    return CategoriesDto.fromEntity(updated);
   }
 
   async getAllCategories(queryParams: any) {
@@ -170,7 +151,7 @@ export class CategoryServices {
     ]);
 
     return {
-      data: CategoriesDto.mapList(categories),
+      data: CategoriesDto.fromEntities(categories),
       pagination: {
         page,
         limit,
@@ -222,7 +203,7 @@ export class CategoryServices {
 
     // Return structured result
     return {
-      data: CategoriesDto.keyValueMap(resultCategories),
+      data: CategoriesDto.nameValueResponse(resultCategories),
       pagination: {
         limit,
         hasMore,
@@ -234,6 +215,6 @@ export class CategoryServices {
   async getCategoryById(id: string) {
     const category = await this.repository.getCategoryItemById(id);
     if (!category) throw new NotFoundError("Category not found");
-    return new CategoriesDto(category);
+    return CategoriesDto.fromEntity(category);
   }
 }

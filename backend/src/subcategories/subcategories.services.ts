@@ -1,5 +1,4 @@
 import { Request } from "express";
-import { validationResult } from "express-validator";
 import { SubCategoryRepository } from "./subcategories.repository";
 import { safeDeleteFile } from "../utils/handleFiles";
 import { NotFoundError, ValidationError } from "../error";
@@ -8,22 +7,14 @@ import { getAbsolutePath, getRelativePath } from "../config/paths";
 import Category from "../categories/categories.model";
 import { handleError } from "../utils/handleError";
 import { ISubCategory } from "./subcategories.interface";
+import { validateRequest } from "../utils/validateRequest";
+import { SubcategoriesDto } from "./subcategories.dto";
 
 export class SubCategoryServices {
   constructor(private subCategoryRepository: SubCategoryRepository) {}
 
-  createSubCategory = async (req: Request) => {
-    const errors = validationResult(req);
-
-    //Check if validation errors exist
-    if (!errors.isEmpty()) {
-      if (req.file) await safeDeleteFile(req.file.path);
-      const errorDetails = errors.array().map((err) => ({
-        field: err.type === "field" ? err.path : "unknown",
-        message: err.msg,
-      }));
-      throw new ValidationError("Invalid entries", errorDetails);
-    }
+  createSubCategory = async (req: Request): Promise<SubcategoriesDto> => {
+    await validateRequest(req);
 
     //Check if image is uploaded
     if (!req.file) {
@@ -48,13 +39,21 @@ export class SubCategoryServices {
     try {
       const savedSubCategory =
         await this.subCategoryRepository.create(dataToSave);
-      return savedSubCategory;
+      return SubcategoriesDto.fromEntity(savedSubCategory);
     } catch (error) {
       throw error;
     }
   };
 
-  async getAllSubCategories(queryParams: any) {
+  async getAllSubCategories(queryParams: any): Promise<{
+    data: SubcategoriesDto[];
+    pagination: {
+      page: number;
+      limit: number;
+      totalData: number;
+      totalPages: number;
+    };
+  }> {
     const page = parseInt(queryParams.page) || 1;
     const limit = parseInt(queryParams.limit) || 10;
     const isActive =
@@ -83,7 +82,7 @@ export class SubCategoryServices {
     ]);
 
     return {
-      data: subCategories,
+      data: SubcategoriesDto.fromEntities(subCategories),
       pagination: {
         page,
         limit,
@@ -93,16 +92,15 @@ export class SubCategoryServices {
     };
   }
 
-  async getSubCategoryById(id: string) {
+  async getSubCategoryById(id: string): Promise<SubcategoriesDto> {
     const subCategory =
       await this.subCategoryRepository.getSubCategoryItemById(id);
     if (!subCategory) throw new NotFoundError("Sub Category not found");
-    return subCategory;
+    return SubcategoriesDto.fromEntity(subCategory);
   }
 
-  async updateSubCategory(req: Request) {
-    await handleError.handleValidationErrors(req);
-
+  async updateSubCategory(req: Request): Promise<SubcategoriesDto> {
+    await validateRequest(req);
     // Find existing subcategory
     const existing = await this.subCategoryRepository.getSubCategoryItemById(
       req.params.id
@@ -141,10 +139,10 @@ export class SubCategoryServices {
       await safeDeleteFile(oldImagePath);
     }
 
-    return updated;
+    return SubcategoriesDto.fromEntity(updated);
   }
 
-  async deleteSubCategory(id: string) {
+  async deleteSubCategory(id: string): Promise<void> {
     const subCategory =
       await this.subCategoryRepository.getSubCategoryItemById(id);
     if (!subCategory) throw new NotFoundError("Sub Category not found");
