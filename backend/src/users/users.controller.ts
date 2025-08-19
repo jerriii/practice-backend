@@ -65,7 +65,7 @@ class UserController {
     }
   };
   getAllUsers = async (req: Request, res: Response) => {
-    const users = await this.userServices.getAllUsers();
+    const users = await this.userServices.getAllUsers(req);
     sendResponse(res, {
       status: "success",
       code: 200,

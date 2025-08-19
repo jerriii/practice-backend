@@ -74,7 +74,8 @@ export class UserServices {
     return { token };
   }
 
-  async getAllUsers(): Promise<UsersDto[]> {
+  async getAllUsers(req: Request): Promise<UsersDto[]> {
+    console.log("request:", req);
     const users = await this.userRepository.getAllUsers();
     return UsersDto.fromEntities(users);
   }

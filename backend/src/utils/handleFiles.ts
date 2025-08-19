@@ -1,5 +1,6 @@
 import fs from "fs";
 import { promisify } from "util";
+import { getRelativePath } from "../config/paths";
 
 const unlinkAsync = promisify(fs.unlink);
 
@@ -13,3 +14,14 @@ export async function safeDeleteFile(filePath: string): Promise<void> {
     }
   }
 }
+
+export const handleMultipleFileUploads = (
+  files: Express.Multer.File[]
+): Promise<string[]> => {
+  return Promise.all(
+    files.map(async (file) => {
+      const relativePath = await getRelativePath(file.path);
+      return relativePath;
+    })
+  );
+};

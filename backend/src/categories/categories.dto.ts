@@ -1,4 +1,5 @@
-import { ICategory, ICategoryKeyValue } from "./categories.interface";
+import { NameValueObject } from "../types/index.types";
+import { ICategory } from "./categories.interface";
 
 export class CategoriesDto {
   private _id!: string;
@@ -37,7 +38,7 @@ export class CategoriesDto {
     };
   }
 
-  static nameValueResponse(categories: ICategory[]): Array<ICategoryKeyValue> {
+  static nameValueResponse(categories: ICategory[]): Array<NameValueObject> {
     return categories.map((category) => ({
       name: category.name,
       value: category._id.toString(),

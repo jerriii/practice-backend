@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { ISubCategory } from "./subcategories.interface";
+import { NamedEntity, NameValueObject } from "../types/index.types";
 
 export class SubcategoriesDto {
   private _id?: string;
@@ -22,47 +23,43 @@ export class SubcategoriesDto {
     return dto;
   }
 
-  static fromEntities(subcategories: any[]): SubcategoriesDto[] {
+  static fromEntities(subcategories: ISubCategory[]): SubcategoriesDto[] {
     return subcategories.map((subcategory) =>
       SubcategoriesDto.fromEntity(subcategory)
     );
   }
 
-  toResponse() {
-    let category = undefined;
+  private isCategoryObject(obj: any): obj is NameValueObject {
+    return obj && typeof obj === "object" && "name" in obj && "value" in obj;
+  }
 
-    // If categoryId exists
-    if (this._categoryId) {
-      // If it already has name and value, use it as is
-      if (
-        typeof this._categoryId === "object" &&
-        "name" in this._categoryId &&
-        "value" in this._categoryId
-      ) {
-        category = this._categoryId;
-      }
-      // If it's a populated object with _id and name
-      else if (
-        typeof this._categoryId === "object" &&
-        "_id" in this._categoryId &&
-        "name" in this._categoryId
-      ) {
-        category = {
-          name: (this._categoryId as any).name,
-          value: (this._categoryId as any)._id,
-        };
-      }
-      // If it's just a string/objectId
-      else {
-        category = { name: "", value: this._categoryId };
-      }
+  private isPopulatedCategory(obj: any): obj is NamedEntity {
+    return obj && typeof obj === "object" && "_id" in obj && "name" in obj;
+  }
+
+  private getResponseCategory(): NameValueObject | undefined {
+    if (!this._categoryId) return undefined;
+
+    if (this.isCategoryObject(this._categoryId)) {
+      return this._categoryId;
     }
 
+    if (this.isPopulatedCategory(this._categoryId)) {
+      return {
+        name: this._categoryId.name,
+        value: this._categoryId._id,
+      };
+    }
+
+    return { name: "", value: this._categoryId.toString() };
+  }
+
+  toResponse() {
     return {
       id: this._id,
       name: this._name,
       description: this._description,
-      categoryId: category,
+      categoryId: this.getResponseCategory(),
       productCount: this._productCount,
       subCategoryImage: this._subCategoryImage,
       isActive: this._isActive,

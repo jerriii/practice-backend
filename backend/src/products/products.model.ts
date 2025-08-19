@@ -9,17 +9,15 @@ const productSchema = new mongoose.Schema<IProduct>(
       trim: true,
       maxlength: 150,
     },
-    category: {
-      type: String,
+    categoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
       required: true,
-      trim: true,
-      maxlength: 100,
     },
-    subcategory: {
-      type: String,
+    subcategoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubCategory",
       required: true,
-      trim: true,
-      maxlength: 100,
     },
     price: {
       type: Number,

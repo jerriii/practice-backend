@@ -3,6 +3,7 @@ import { ValidationError } from "../error";
 import Category from "../categories/categories.model";
 import SubCategory from "../subcategories/subcategories.model";
 import User from "../users/users.model";
+import { NextFunction, Request, Response } from "express";
 
 class Validator {
   private static instance: Validator;
@@ -15,6 +16,22 @@ class Validator {
     }
     return Validator.instance;
   }
+
+  validateMultipleImages = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    if (!req.files || !(req.files as Express.Multer.File[]).length) {
+      res.status(400).json({
+        status: "error",
+        details: [
+          { field: "productImages", message: "Product Images are required" },
+        ],
+      });
+    }
+    next();
+  };
 
   validateCategoryCreate = [
     body("name")
@@ -261,6 +278,53 @@ class Validator {
       .optional()
       .isIn(["admin", "author", "reader"])
       .withMessage("Invalid role. Allowed Roles: admin, author, reader"),
+  ];
+
+  validateProductsCreate = [
+    body("name")
+      .notEmpty()
+      .withMessage("Name is required")
+      .bail()
+      .isLength({ max: 100 })
+      .withMessage("Name must be less than 100 characters"),
+
+    body("categoryId")
+      .notEmpty()
+      .withMessage("Category ID is required")
+      .bail()
+      .custom(async (value) => {
+        const exists = await Category.exists({ _id: value });
+        if (!exists) throw new ValidationError("Category does not exist");
+      }),
+
+    body("subcategoryId")
+      .notEmpty()
+      .withMessage("Subcategory ID is required")
+      .bail()
+      .custom(async (value) => {
+        const exists = await SubCategory.exists({ _id: value });
+        if (!exists) throw new ValidationError("Subcategory does not exist");
+      }),
+
+    body("price")
+      .notEmpty()
+      .withMessage("Price is required")
+      .bail()
+      .isFloat({ min: 0 })
+      .withMessage("Price must be a positive number"),
+
+    body("productCount")
+      .notEmpty()
+      .withMessage("Product count is required")
+      .bail()
+      .isInt({ min: 0 })
+      .withMessage("Product count must be a positive integer"),
+
+    body("isActive")
+      .optional()
+      .toBoolean()
+      .isBoolean()
+      .withMessage("Must be Active or Inactive"),
   ];
 }
 

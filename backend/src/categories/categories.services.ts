@@ -1,6 +1,5 @@
 import { Request } from "express";
 import fs from "fs";
-import { validationResult } from "express-validator";
 import mongoose, { FilterQuery } from "mongoose";
 import { CategoryRepository } from "./categories.repository";
 import { NotFoundError, ValidationError } from "../error";
@@ -9,12 +8,13 @@ import { safeDeleteFile } from "../utils/handleFiles";
 import { getUpdatedFields, processBooleanField } from "../utils/objectUtils";
 import Category from "./categories.model";
 import { SubCategoryRepository } from "../subcategories/subcategories.repository";
-import { ICategory, ICategoryKeyValue } from "./categories.interface";
+import { ICategory } from "./categories.interface";
 import { CategoriesDto } from "./categories.dto";
 import { validateRequest } from "../utils/validateRequest";
+import { NameValueObject } from "../types/index.types";
 
 interface CategoriesResult {
-  data: Array<ICategoryKeyValue>;
+  data: Array<NameValueObject>;
   pagination: {
     limit: number;
     hasMore: boolean;

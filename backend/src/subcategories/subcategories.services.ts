@@ -13,7 +13,7 @@ import { SubcategoriesDto } from "./subcategories.dto";
 export class SubCategoryServices {
   constructor(private subCategoryRepository: SubCategoryRepository) {}
 
-  createSubCategory = async (req: Request): Promise<SubcategoriesDto> => {
+  async createSubCategory(req: Request): Promise<SubcategoriesDto> {
     await validateRequest(req);
 
     //Check if image is uploaded
@@ -43,7 +43,7 @@ export class SubCategoryServices {
     } catch (error) {
       throw error;
     }
-  };
+  }
 
   async getAllSubCategories(queryParams: any): Promise<{
     data: SubcategoriesDto[];

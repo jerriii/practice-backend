@@ -9,8 +9,3 @@ export interface ICategory {
   productCount?: number;
   isActive: boolean;
 }
-
-export interface ICategoryKeyValue {
-  name: string;
-  value: string;
-}
