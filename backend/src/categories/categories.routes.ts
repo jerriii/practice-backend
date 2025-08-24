@@ -15,7 +15,8 @@ router.post(
     fileSizeLimit: 5 * 1024 * 1024,
     uploadType: "single",
   }).handle(),
-  validators.validateCategoryCreate,
+  validators.category.validateCategoryCreate,
+  validators.category.handleValidationErrors,
   controller.createCategory
 );
 
@@ -37,11 +38,17 @@ router.put(
     fileSizeLimit: 5 * 1024 * 1024,
     uploadType: "single",
   }).handle(),
-  validators.validateCategoryUpdate,
+  validators.category.validateCategoryUpdate,
+  validators.category.handleValidationErrors,
   controller.updateCategory
 );
 
 //Delete Category
-router.delete("/:id", controller.deleteCategory);
+router.delete(
+  "/:id",
+  validators.category.validateCategoryDelete,
+  validators.category.handleValidationErrors,
+  controller.deleteCategory
+);
 
 export default router;

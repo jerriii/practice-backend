@@ -12,11 +12,6 @@ export class ProductServices {
   constructor(private readonly productRepository: ProductRepository) {}
 
   async createProduct(req: Request): Promise<ProductsDto> {
-    await validateRequest(req);
-    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-      throw new ValidationError("Image is required");
-    }
-
     //Get image paths
     const productImages = await handleMultipleFileUploads(
       req.files as Express.Multer.File[]
@@ -28,6 +23,7 @@ export class ProductServices {
     //Create data to save
     const dataToSave: IProduct = {
       name: req.body.name,
+      slug: req.body.slug,
       categoryId: new mongoose.Types.ObjectId(String(req.body.categoryId)),
       subcategoryId: new mongoose.Types.ObjectId(
         String(req.body.subcategoryId)
@@ -44,6 +40,6 @@ export class ProductServices {
 
   async getAllProducts(): Promise<ProductsDto[]> {
     const products = await this.productRepository.findAll();
-    return products.map((product) => ProductsDto.fromEntity(product));
+    return ProductsDto.fromEntities(products);
   }
 }

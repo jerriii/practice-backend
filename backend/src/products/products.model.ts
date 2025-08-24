@@ -9,6 +9,14 @@ const productSchema = new mongoose.Schema<IProduct>(
       trim: true,
       maxlength: 150,
     },
+    slug: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+      lowercase: true,
+      maxlength: 150,
+    },
     categoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",

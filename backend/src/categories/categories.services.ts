@@ -26,7 +26,10 @@ export class CategoryServices {
   constructor(
     private repository: CategoryRepository,
     private subCategoryRepository: SubCategoryRepository
-  ) {}
+  ) {
+    this.repository = repository;
+    this.subCategoryRepository = subCategoryRepository;
+  }
 
   async deleteCategory(req: Request) {
     const subCategoriesCount =
@@ -55,8 +58,6 @@ export class CategoryServices {
   }
 
   async createCategory(req: Request) {
-    await validateRequest(req);
-
     //Check if image is uploaded
     if (!req.file) {
       throw new ValidationError("Image is required");

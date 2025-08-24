@@ -143,15 +143,15 @@ export class SubCategoryServices {
   }
 
   async deleteSubCategory(id: string): Promise<void> {
-    const subCategory =
-      await this.subCategoryRepository.getSubCategoryItemById(id);
-    if (!subCategory) throw new NotFoundError("Sub Category not found");
+    // const subCategory =
+    // await this.subCategoryRepository.getSubCategoryItemById(id);
+    // if (!subCategory) throw new NotFoundError("Sub Category not found");
 
     // Delete image file if exists
-    if (subCategory.subCategoryImage) {
-      const imagePath = await getAbsolutePath(subCategory.subCategoryImage);
-      await safeDeleteFile(imagePath);
-    }
+    // if (subCategory.subCategoryImage) {
+    //   const imagePath = await getAbsolutePath(subCategory.subCategoryImage);
+    //   await safeDeleteFile(imagePath);
+    // }
 
     await this.subCategoryRepository.deleteById(id);
   }

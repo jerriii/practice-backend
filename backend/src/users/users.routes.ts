@@ -5,16 +5,23 @@ import DynamicUpload from "../middlewares/upload";
 import validators from "../middlewares/validators";
 const router = express.Router();
 
+const imageUpload = new DynamicUpload({
+  fieldName: "avatar",
+  uploadType: "none",
+}).handle();
+
 router.post(
   "/register",
-  new DynamicUpload({ fieldName: "avatar", uploadType: "none" }).handle(),
-  validators.validateUsersCreate,
+  imageUpload,
+  validators.user.validateUsersCreate,
+  validators.user.handleValidationErrors,
   userController.register
 );
 router.post(
   "/login",
-  new DynamicUpload({ fieldName: "avatar", uploadType: "none" }).handle(),
-  validators.validateUsersLogin,
+  imageUpload,
+  validators.user.validateUsersLogin,
+  validators.user.handleValidationErrors,
   userController.login
 );
 router.get("/profile", authMiddleware, userController.getCurrentUser);
@@ -23,8 +30,9 @@ router.get("/:userId", authMiddleware, userController.getUserById);
 router.put(
   "/:userId",
   authMiddleware,
-  new DynamicUpload({ fieldName: "avatar", uploadType: "none" }).handle(),
-  validators.validateUsersUpdate,
+  imageUpload,
+  validators.user.validateUsersUpdate,
+  validators.user.handleValidationErrors,
   userController.updateUser
 );
 router.delete("/:userId", authMiddleware, userController.deleteUser);

@@ -5,6 +5,7 @@ import { NamedEntity, NameValueObject } from "../types/index.types";
 export class ProductsDto {
   private _id?: string | mongoose.Types.ObjectId;
   private _name!: string;
+  private _slug!: string;
   private _categoryId!: string | mongoose.Types.ObjectId;
   private _subCategoryId!: string | mongoose.Types.ObjectId;
   private _price!: number;
@@ -16,6 +17,7 @@ export class ProductsDto {
     const dto = new ProductsDto();
     dto._id = product._id;
     dto._name = product.name;
+    dto._slug = product.slug;
     dto._categoryId = product.categoryId;
     dto._subCategoryId = product.subcategoryId;
     dto._price = product.price;
@@ -37,7 +39,7 @@ export class ProductsDto {
     return obj && typeof obj === "object" && "_id" in obj && "name" in obj;
   }
 
-  private getResponseCategory(): NameValueObject | undefined {
+  private getResponseCategory(): NameValueObject | string | undefined {
     if (!this._categoryId) return undefined;
 
     if (this.isObject(this._categoryId)) {
@@ -51,10 +53,10 @@ export class ProductsDto {
       };
     }
 
-    return { name: "", value: this._categoryId.toString() };
+    return this._categoryId.toString();
   }
 
-  private getResponseSubCategory(): NameValueObject | undefined {
+  private getResponseSubCategory(): NameValueObject | string | undefined {
     if (!this._subCategoryId) return undefined;
 
     if (this.isObject(this._subCategoryId)) {
@@ -68,7 +70,7 @@ export class ProductsDto {
       };
     }
 
-    return { name: "", value: this._subCategoryId.toString() };
+    return this._subCategoryId.toString();
   }
 
   toResponse() {

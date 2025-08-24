@@ -1,13 +1,11 @@
-import { Request, Response } from "express";
-import { AppError, ValidationError } from "../error";
-import { validationResult } from "express-validator";
-import { safeDeleteFile } from "./handleFiles";
+import { Response } from "express";
+import { AppError } from "../error";
 
 type ErrorResponse = {
   status: "error";
   code: number;
   message: string;
-  details?: any;
+  validationErrors?: any;
   debug?: string;
 };
 
@@ -82,7 +80,9 @@ class ErrorHandler {
         status: "error",
         code: error.statusCode,
         message: error.message,
-        ...(error.details && { details: error.details }),
+        ...(error.validationErrors && {
+          validationErrors: error.validationErrors,
+        }),
         ...(process.env.NODE_ENV === "development" && { debug: error.stack }),
       });
     }

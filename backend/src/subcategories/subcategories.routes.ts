@@ -7,31 +7,35 @@ const router = express.Router();
 
 const controller = createSubCategoryController();
 
+const imageUpload = new DynamicUpload({
+  fieldName: "subCategoryImage",
+  allowedMimeTypes: ["image/*"],
+  fileSizeLimit: 5 * 1024 * 1024,
+  uploadType: "single",
+}).handle();
+
 router.post(
   "/create",
-  new DynamicUpload({
-    fieldName: "subCategoryImage",
-    allowedMimeTypes: ["image/*"],
-    fileSizeLimit: 5 * 1024 * 1024,
-    uploadType: "single",
-  }).handle(),
-  validators.validateSubCategoryCreate,
+  imageUpload,
+  validators.subcategory.validateSubCategoryCreate,
+  validators.subcategory.handleValidationErrors,
   controller.createSubCategory
 );
 
 router.get("/", controller.getAllSubCategories);
 router.get("/:id", controller.getSubCategoryById);
 router.put(
-  "/update/:id",
-  new DynamicUpload({
-    fieldName: "subCategoryImage",
-    allowedMimeTypes: ["image/*"],
-    fileSizeLimit: 5 * 1024 * 1024,
-    uploadType: "single",
-  }).handle(),
-  validators.validateSubCategoryUpdate,
+  "/:id",
+  imageUpload,
+  validators.subcategory.validateSubCategoryUpdate,
+  validators.subcategory.handleValidationErrors,
   controller.updateSubCategory
 );
-router.delete("/delete/:id", controller.deleteSubCategory);
+router.delete(
+  "/:id",
+  validators.subcategory.validateSubCategoryDelete,
+  validators.subcategory.handleValidationErrors,
+  controller.deleteSubCategory
+);
 
 export default router;
