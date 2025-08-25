@@ -7,8 +7,7 @@ import {
   ValidationError,
 } from "../../error";
 import SubCategory from "../../subcategories/subcategories.model";
-import { getAbsolutePath } from "../../config/paths";
-import { safeDeleteFile } from "../../utils/handleFiles";
+import Product from "../../products/products.model";
 
 export class SubCategoryValidator extends BaseValidator {
   validateSubCategoryCreate = [
@@ -136,15 +135,20 @@ export class SubCategoryValidator extends BaseValidator {
       .withMessage("Invalid Sub Category ID format")
       .bail()
       .custom(async (value) => {
-        const exists = await SubCategory.exists({ _id: value });
-        if (!exists) throw new NotFoundError("Sub Category not found");
-
         const subCategory = await SubCategory.findById(value);
         if (!subCategory) throw new NotFoundError("Sub Category not found");
-        if (subCategory.subCategoryImage) {
-          const imagePath = await getAbsolutePath(subCategory.subCategoryImage);
-          await safeDeleteFile(imagePath);
+
+        const productCount = await Product.countDocuments({
+          subCategoryId: value,
+        });
+
+        if (productCount > 0) {
+          throw new ValidationError(
+            `Cannot delete. One or more products linked.`
+          );
         }
+
+        return true;
       }),
   ];
 }

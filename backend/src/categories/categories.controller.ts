@@ -5,6 +5,7 @@ import { safeDeleteFile } from "../utils/handleFiles";
 import { handleError } from "../utils/handleError";
 import { CategoryRepository } from "./categories.repository";
 import { SubCategoryRepository } from "../subcategories/subcategories.repository";
+import { ProductRepository } from "../products/products.repositories";
 
 class CategoryController {
   constructor(private categoryService: CategoryServices) {}
@@ -108,8 +109,10 @@ class CategoryController {
 export const createCategoryController = () => {
   const subCategoryRepository = new SubCategoryRepository();
   const categoryRepository = new CategoryRepository();
+  const productRepository = new ProductRepository();
   const categoryService = new CategoryServices(
     categoryRepository,
+    productRepository,
     subCategoryRepository
   );
   return new CategoryController(categoryService);

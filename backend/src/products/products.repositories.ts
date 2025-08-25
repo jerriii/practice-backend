@@ -31,21 +31,22 @@ export class ProductRepository {
   }
 
   async findAll(
-    filter: FilterQuery<IProduct> = {},
-    options: {
-      skip?: number;
-      limit?: number;
-      sort?: Record<string, 1 | -1>;
-      lean?: boolean;
-    } = {}
+    query: any,
+    page: number = 1,
+    limit: number = 10
   ): Promise<IProduct[]> {
-    const { skip = 0, limit = 0, sort = {}, lean = false } = options;
-
-    const query = Product.find(filter).skip(skip).limit(limit).sort(sort);
-
-    if (lean) query.lean();
-
-    return await query.exec();
+    const products = Product.find(query)
+      .skip((page - 1) * limit)
+      .limit(limit);
+    products.populate({
+      path: "categoryId",
+      select: "name _id",
+    });
+    products.populate({
+      path: "subcategoryId",
+      select: "name _id",
+    });
+    return await products.exec();
   }
 
   async updateById(

@@ -11,7 +11,8 @@ import { SubCategoryRepository } from "../subcategories/subcategories.repository
 import { ICategory } from "./categories.interface";
 import { CategoriesDto } from "./categories.dto";
 import { validateRequest } from "../utils/validateRequest";
-import { NameValueObject } from "../types/index.types";
+import { NameValueObject, PaginationMeta } from "../types/index.types";
+import { ProductRepository } from "../products/products.repositories";
 
 interface CategoriesResult {
   data: Array<NameValueObject>;
@@ -25,39 +26,44 @@ interface CategoriesResult {
 export class CategoryServices {
   constructor(
     private repository: CategoryRepository,
+    private productRepository: ProductRepository,
     private subCategoryRepository: SubCategoryRepository
-  ) {
-    this.repository = repository;
-    this.subCategoryRepository = subCategoryRepository;
-  }
+  ) {}
 
-  async deleteCategory(req: Request) {
-    const subCategoriesCount =
-      await this.subCategoryRepository.countSubCategoriesWithCategoryId(
-        req.params.id
-      );
-    if (subCategoriesCount > 0) {
-      throw new ValidationError(
-        `Cannot delete. One or more subcategories linked.`
-      );
-    }
+  async deleteCategory(req: Request): Promise<ICategory | null> {
     const category = await this.repository.getCategoryItemById(req.params.id);
     if (!category) {
       throw new NotFoundError("Category not found");
     }
 
+    const productsCount = await this.productRepository.count({
+      categoryId: req.params.id,
+    });
+    if (productsCount > 0) {
+      throw new ValidationError("Cannot delete. One or more products linked.");
+    }
+
+    const subcategoriesCount =
+      await this.subCategoryRepository.countSubCategories({
+        categoryId: req.params.id,
+      });
+
+    if (subcategoriesCount > 0) {
+      throw new ValidationError(
+        "Cannot delete. One or more subcategories linked."
+      );
+    }
+
     // Delete the image file if it exists
     if (category.categoryImage) {
       const imagePath = await getAbsolutePath(category.categoryImage);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
+      await safeDeleteFile(imagePath);
     }
 
     return await this.repository.deleteById(req.params.id);
   }
 
-  async createCategory(req: Request) {
+  async createCategory(req: Request): Promise<CategoriesDto> {
     //Check if image is uploaded
     if (!req.file) {
       throw new ValidationError("Image is required");
@@ -91,9 +97,7 @@ export class CategoryServices {
     }
   }
 
-  async updateCategory(req: Request) {
-    await validateRequest(req);
-
+  async updateCategory(req: Request): Promise<CategoriesDto> {
     // Find existing category
     const existing = await this.repository.getCategoryItemById(req.params.id);
     if (!existing) {
@@ -130,7 +134,10 @@ export class CategoryServices {
     return CategoriesDto.fromEntity(updated);
   }
 
-  async getAllCategories(queryParams: any) {
+  async getAllCategories(queryParams: any): Promise<{
+    data: CategoriesDto[];
+    pagination: PaginationMeta;
+  }> {
     const page = parseInt(queryParams.page) || 1;
     const limit = parseInt(queryParams.limit) || 10;
     const isActive =

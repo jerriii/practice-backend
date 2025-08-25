@@ -35,13 +35,6 @@ export class SubCategoryRepository {
       .populate({
         path: "categoryId",
         select: "name _id",
-        transform: (category) => {
-          if (!category) return null;
-          return {
-            name: category.name,
-            value: category._id,
-          };
-        },
       })
       .lean();
     return subCategories;

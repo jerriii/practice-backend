@@ -37,7 +37,7 @@ export class SubcategoriesDto {
     return obj && typeof obj === "object" && "_id" in obj && "name" in obj;
   }
 
-  private getResponseCategory(): NameValueObject | undefined {
+  private getResponseCategory(): NameValueObject | string | undefined {
     if (!this._categoryId) return undefined;
 
     if (this.isCategoryObject(this._categoryId)) {
@@ -51,7 +51,7 @@ export class SubcategoriesDto {
       };
     }
 
-    return { name: "", value: this._categoryId.toString() };
+    return this._categoryId.toString();
   }
 
   toResponse() {

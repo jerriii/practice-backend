@@ -1,6 +1,6 @@
 import { body, Meta } from "express-validator";
 import User from "../../users/users.model";
-import { ValidationError } from "../../error";
+import { NotFoundError, ValidationError } from "../../error";
 import { BaseValidator } from "./base.validator";
 
 export class UserValidator extends BaseValidator {
@@ -81,5 +81,16 @@ export class UserValidator extends BaseValidator {
       .optional()
       .isIn(["admin", "author", "reader"])
       .withMessage("Invalid role. Allowed Roles: admin, author, reader"),
+  ];
+
+  validateUserDelete = [
+    body("id")
+      .notEmpty()
+      .withMessage("User ID is required")
+      .bail()
+      .custom(async (value) => {
+        const exists = await User.exists({ _id: value });
+        if (!exists) throw new NotFoundError("User not found");
+      }),
   ];
 }

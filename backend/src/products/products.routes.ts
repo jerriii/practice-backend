@@ -24,4 +24,19 @@ router.post(
 
 router.get("/", controller.getAllProducts);
 
+router.put(
+  "/:id",
+  dynamicUpload,
+  validators.product.validateProductsUpdate,
+  validators.product.handleValidationErrors,
+  controller.updateProduct
+);
+
+router.delete(
+  "/:id",
+  validators.product.validateProductsDelete,
+  validators.product.handleValidationErrors,
+  controller.deleteProduct
+);
+
 export default router;

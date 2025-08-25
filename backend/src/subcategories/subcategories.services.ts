@@ -5,10 +5,10 @@ import { NotFoundError, ValidationError } from "../error";
 import { getUpdatedFields, processBooleanField } from "../utils/objectUtils";
 import { getAbsolutePath, getRelativePath } from "../config/paths";
 import Category from "../categories/categories.model";
-import { handleError } from "../utils/handleError";
 import { ISubCategory } from "./subcategories.interface";
 import { validateRequest } from "../utils/validateRequest";
 import { SubcategoriesDto } from "./subcategories.dto";
+import { PaginationMeta } from "../types/index.types";
 
 export class SubCategoryServices {
   constructor(private subCategoryRepository: SubCategoryRepository) {}
@@ -47,12 +47,7 @@ export class SubCategoryServices {
 
   async getAllSubCategories(queryParams: any): Promise<{
     data: SubcategoriesDto[];
-    pagination: {
-      page: number;
-      limit: number;
-      totalData: number;
-      totalPages: number;
-    };
+    pagination: PaginationMeta;
   }> {
     const page = parseInt(queryParams.page) || 1;
     const limit = parseInt(queryParams.limit) || 10;
@@ -143,15 +138,15 @@ export class SubCategoryServices {
   }
 
   async deleteSubCategory(id: string): Promise<void> {
-    // const subCategory =
-    // await this.subCategoryRepository.getSubCategoryItemById(id);
-    // if (!subCategory) throw new NotFoundError("Sub Category not found");
+    const subCategory =
+      await this.subCategoryRepository.getSubCategoryItemById(id);
+    if (!subCategory) throw new NotFoundError("Sub Category not found");
 
     // Delete image file if exists
-    // if (subCategory.subCategoryImage) {
-    //   const imagePath = await getAbsolutePath(subCategory.subCategoryImage);
-    //   await safeDeleteFile(imagePath);
-    // }
+    if (subCategory.subCategoryImage) {
+      const imagePath = await getAbsolutePath(subCategory.subCategoryImage);
+      await safeDeleteFile(imagePath);
+    }
 
     await this.subCategoryRepository.deleteById(id);
   }

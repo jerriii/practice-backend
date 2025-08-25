@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, Meta, param } from "express-validator";
 import Product from "../../products/products.model";
 import { ImageValidationError, ValidationError } from "../../error";
 import Category from "../../categories/categories.model";
@@ -85,5 +85,89 @@ export class ProductValidator extends BaseValidator {
 
       return true;
     }),
+  ];
+
+  validateProductsUpdate = [
+    body("name")
+      .optional()
+      .isLength({ max: 100 })
+      .withMessage("Name must be less than 100 characters"),
+
+    body("slug")
+      .optional()
+      .isLength({ max: 100 })
+      .withMessage("Slug must be less than 100 characters")
+      .custom(async (value, { req }: Meta) => {
+        if (!value) return true;
+        // Make sure slug is unique, excluding current product
+        const exists = await Product.exists({
+          slug: value,
+          _id: { $ne: req.params?.id },
+        });
+        if (exists) throw new ValidationError("Slug already exists");
+      }),
+
+    body("categoryId")
+      .optional()
+      .custom(async (value) => {
+        if (!value) return true;
+        const exists = await Category.exists({ _id: value });
+        if (!exists) throw new ValidationError("Category does not exist");
+      }),
+
+    body("subcategoryId")
+      .optional()
+      .custom(async (value) => {
+        if (!value) return true;
+        const exists = await SubCategory.exists({ _id: value });
+        if (!exists) throw new ValidationError("Subcategory does not exist");
+      }),
+
+    body("price")
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage("Price must be a positive number"),
+
+    body("productCount")
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage("Product count must be a positive integer"),
+
+    body("isActive")
+      .optional()
+      .toBoolean()
+      .isBoolean()
+      .withMessage("Must be Active or Inactive"),
+
+    body("productImages").custom((_value, { req }) => {
+      const files = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) {
+        // For update, images are optional
+        return true;
+      }
+
+      if (files.length < 2) {
+        throw new ImageValidationError(
+          "At least 2 product images are required"
+        );
+      }
+
+      if (!this.isValidImage(files[0])) {
+        throw new ImageValidationError(
+          "Invalid image format. Allowed formats: JPEG, JPG, PNG"
+        );
+      }
+
+      return true;
+    }),
+  ];
+
+  validateProductsDelete = [
+    param("id")
+      .notEmpty()
+      .withMessage("Product ID is required")
+      .bail()
+      .isMongoId()
+      .withMessage("Invalid Product ID format"),
   ];
 }

@@ -17,12 +17,30 @@ export class ProductsController {
   };
 
   getAllProducts = async (req: Request, res: Response) => {
-    const products = await this.productServices.getAllProducts();
+    const products = await this.productServices.getAllProducts(req.query);
     sendResponse(res, {
       status: "success",
       code: 200,
       message: "Products retrieved successfully",
-      data: products.map((product) => product.toResponse()),
+      data: products.data.map((product) => product.toResponse()),
+      pagination: products.pagination,
+    });
+  };
+  updateProduct = async (req: Request, res: Response) => {
+    const product = await this.productServices.updateProduct(req);
+    sendResponse(res, {
+      status: "success",
+      code: 200,
+      message: "Product updated successfully",
+      data: product.toResponse(),
+    });
+  };
+  deleteProduct = async (req: Request, res: Response) => {
+    await this.productServices.deleteProduct(req);
+    sendResponse(res, {
+      status: "success",
+      code: 200,
+      message: "Product deleted successfully",
     });
   };
 }

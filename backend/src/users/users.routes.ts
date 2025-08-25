@@ -35,6 +35,12 @@ router.put(
   validators.user.handleValidationErrors,
   userController.updateUser
 );
-router.delete("/:userId", authMiddleware, userController.deleteUser);
+router.delete(
+  "/:userId",
+  authMiddleware,
+  validators.user.validateUserDelete,
+  validators.user.handleValidationErrors,
+  userController.deleteUser
+);
 
 export default router;

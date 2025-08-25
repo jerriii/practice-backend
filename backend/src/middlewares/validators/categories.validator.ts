@@ -9,6 +9,7 @@ import { BaseValidator } from "./base.validator";
 import { getAbsolutePath } from "../../config/paths";
 import fs from "fs";
 import SubCategory from "../../subcategories/subcategories.model";
+import Product from "../../products/products.model";
 
 export class CategoryValidator extends BaseValidator {
   validateCategoryCreate = [
@@ -88,11 +89,7 @@ export class CategoryValidator extends BaseValidator {
       .custom((_value, { req }: Meta) => {
         const file = req.file as Express.Multer.File;
 
-        if (!file) {
-          throw new ImageValidationError("Category image is required");
-        }
-
-        if (!this.isValidImage(file)) {
+        if (file && !this.isValidImage(file)) {
           throw new ImageValidationError("Only image files are allowed");
         }
 
@@ -138,31 +135,6 @@ export class CategoryValidator extends BaseValidator {
       .withMessage("Category ID is required")
       .bail()
       .isMongoId()
-      .withMessage("Invalid Category ID format")
-      .bail()
-      .custom(async (value) => {
-        const exists = await Category.exists({ _id: value });
-        if (!exists) throw new ValidationError("Category not found");
-        const subCategoriesCount = await SubCategory.countDocuments({
-          categoryId: value,
-        });
-        if (subCategoriesCount > 0) {
-          throw new ValidationError(
-            `Cannot delete. One or more subcategories linked.`
-          );
-        }
-        const category = await Category.findById(value);
-        if (!category) {
-          throw new NotFoundError("Category not found");
-        }
-
-        // Delete the image file if it exists
-        if (category.categoryImage) {
-          const imagePath = await getAbsolutePath(category.categoryImage);
-          if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath);
-          }
-        }
-      }),
+      .withMessage("Invalid Category ID format"),
   ];
 }
