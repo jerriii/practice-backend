@@ -72,6 +72,12 @@ export class ProductsDto {
 
     return this._subCategoryId.toString();
   }
+  private getProductStatus(isActive: boolean, productCount: number): string {
+    if (!isActive) return "Inactive";
+    if (productCount === 0) return "Out of Stock";
+    if (productCount <= 10) return "Low Stock";
+    return "Active";
+  }
 
   toResponse() {
     return {
@@ -81,7 +87,7 @@ export class ProductsDto {
       subCategoryId: this.getResponseSubCategory(),
       price: this._price,
       productCount: this._productCount,
-      isActive: this._isActive,
+      status: this.getProductStatus(this._isActive, this._productCount),
       productImages: this._productImages,
     };
   }

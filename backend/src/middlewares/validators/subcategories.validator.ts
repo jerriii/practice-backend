@@ -111,19 +111,21 @@ export class SubCategoryValidator extends BaseValidator {
       .isInt({ min: 0 })
       .withMessage("Product count must be a positive integer"),
 
-    body("subCategoryImage").custom((_value, { req }: Meta) => {
-      const file = req.file as Express.Multer.File;
+    body("subCategoryImage")
+      .optional()
+      .custom((_value, { req }: Meta) => {
+        const file = req.file as Express.Multer.File;
 
-      if (!file) {
-        throw new ImageValidationError("Sub Category image is required");
-      }
+        if (!file) {
+          throw new ImageValidationError("Sub Category image is required");
+        }
 
-      if (!this.isValidImage(file)) {
-        throw new ImageValidationError("Only image files are allowed");
-      }
+        if (!this.isValidImage(file)) {
+          throw new ImageValidationError("Only image files are allowed");
+        }
 
-      return true;
-    }),
+        return true;
+      }),
   ];
 
   validateSubCategoryDelete = [
