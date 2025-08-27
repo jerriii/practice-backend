@@ -136,9 +136,9 @@ export const AddSubCategory = ({
   useEffect(() => {
     if (isError && error) {
       const apiError = error as ApiError;
-      if (Array.isArray(apiError.details)) {
+      if (Array.isArray(apiError.validationErrors)) {
         const fieldErrors: Record<string, string> = {};
-        apiError.details.forEach((detail) => {
+        apiError.validationErrors.forEach((detail) => {
           fieldErrors[detail.field] = detail.message;
         });
         dispatch({ type: "SET_ERRORS", errors: fieldErrors });

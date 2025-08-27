@@ -1,4 +1,4 @@
-import { IError } from "@/types";
+import { ApiError } from "@/types";
 
 class CategoryServices {
   static async createCategory(payload: FormData) {
@@ -11,13 +11,13 @@ class CategoryServices {
     );
     const data = await res.json();
     if (!res.ok) {
-      const error: IError = new Error(
-        data.message || "Failed to create category"
-      );
-      error.status = data.status;
-      error.details = data.details;
-      error.message = data.message;
-      error.code = data.code;
+      const error: ApiError = {
+        name: "Category Error",
+        status: data.status,
+        message: data.message,
+        code: data.code,
+        validationErrors: data.validationErrors,
+      };
       throw error;
     }
 
@@ -38,12 +38,13 @@ class CategoryServices {
     );
     const data = await res.json();
     if (!res.ok) {
-      const error: IError = new Error(
-        data.message || "Failed to get categories"
-      );
-      error.status = data.status;
-      error.details = data.details;
-      error.message = data.message;
+      const error: ApiError = {
+        name: "Category Error",
+        status: data.status,
+        message: data.message,
+        code: data.code,
+        validationErrors: data.validationErrors,
+      };
       error.code = data.code;
       throw error;
     }
@@ -62,12 +63,13 @@ class CategoryServices {
     );
     const data = await res.json();
     if (!res.ok) {
-      const error: IError = new Error(
-        data.message || "Failed to get categories"
-      );
-      error.status = data.status;
-      error.details = data.details;
-      error.message = data.message;
+      const error: ApiError = {
+        name: "Category Error",
+        status: data.status,
+        message: data.message,
+        code: data.code,
+        validationErrors: data.validationErrors,
+      };
       error.code = data.code;
       throw error;
     }
@@ -81,11 +83,13 @@ class CategoryServices {
     );
     const data = await res.json();
     if (!res.ok) {
-      const error: IError = new Error(data.message || "Failed to get category");
-      error.status = data.status;
-      error.details = data.details;
-      error.message = data.message;
-      error.code = data.code;
+      const error: ApiError = {
+        name: "Category Error",
+        status: data.status,
+        message: data.message,
+        code: data.code,
+        validationErrors: data.validationErrors,
+      };
       throw error;
     }
 
@@ -102,12 +106,13 @@ class CategoryServices {
     );
     const data = await res.json();
     if (!res.ok) {
-      const error: IError = new Error(
-        data.message || "Failed to update category"
-      );
-      error.status = data.status;
-      error.details = data.details;
-      error.message = data.message;
+      const error: ApiError = {
+        name: "Category Error",
+        status: data.status,
+        message: data.message,
+        code: data.code,
+        validationErrors: data.validationErrors,
+      };
       error.code = data.code;
       throw error;
     }
@@ -124,13 +129,13 @@ class CategoryServices {
     );
     const data = await res.json();
     if (!res.ok) {
-      const error: IError = new Error(
-        data.message || "Failed to delete category"
-      );
-      error.status = data.status;
-      error.details = data.details;
-      error.message = data.message;
-      error.code = data.code;
+      const error: ApiError = {
+        name: "Category Error",
+        status: data.status,
+        message: data.message,
+        code: data.code,
+        validationErrors: data.validationErrors,
+      };
       throw error;
     }
 

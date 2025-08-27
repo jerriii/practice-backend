@@ -1,4 +1,4 @@
-import { IError } from "@/types";
+import { ApiError } from "@/types";
 
 export class SubCategoryServices {
   private static readonly baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
@@ -14,12 +14,13 @@ export class SubCategoryServices {
     );
     const data = await res.json();
     if (!res.ok) {
-      const error: IError = new Error(
-        data.message || "Failed to get subcategories"
-      );
-      error.status = data.status;
-      error.details = data.details;
-      error.message = data.message;
+      const error: ApiError = {
+        name: "SubCategory Error",
+        status: data.status,
+        message: data.message,
+        code: data.code,
+        validationErrors: data.validationErrors,
+      };
       error.code = data.code;
       throw error;
     }
@@ -34,12 +35,13 @@ export class SubCategoryServices {
     });
     const data = await res.json();
     if (!res.ok) {
-      const error: IError = new Error(
-        data.message || "Failed to create subcategory"
-      );
-      error.status = data.status;
-      error.details = data.details;
-      error.message = data.message;
+      const error: ApiError = {
+        name: "SubCategory Error",
+        status: data.status,
+        message: data.message,
+        code: data.code,
+        validationErrors: data.validationErrors,
+      };
       error.code = data.code;
       throw error;
     }
@@ -51,12 +53,13 @@ export class SubCategoryServices {
     const res = await fetch(`${this.baseUrl}/subcategories/${id}`);
     const data = await res.json();
     if (!res.ok) {
-      const error: IError = new Error(
-        data.message || "Failed to get subcategory"
-      );
-      error.status = data.status;
-      error.details = data.details;
-      error.message = data.message;
+      const error: ApiError = {
+        name: "SubCategory Error",
+        status: data.status,
+        message: data.message,
+        code: data.code,
+        validationErrors: data.validationErrors,
+      };
       error.code = data.code;
       throw error;
     }
@@ -71,12 +74,13 @@ export class SubCategoryServices {
     });
     const responseData = await res.json();
     if (!res.ok) {
-      const error: IError = new Error(
-        responseData.message || "Failed to update subcategory"
-      );
-      error.status = responseData.status;
-      error.details = responseData.details;
-      error.message = responseData.message;
+      const error: ApiError = {
+        name: "SubCategory Error",
+        status: responseData.status,
+        message: responseData.message,
+        code: responseData.code,
+        validationErrors: responseData.validationErrors,
+      };
       error.code = responseData.code;
       throw error;
     }
@@ -90,12 +94,13 @@ export class SubCategoryServices {
     });
     const data = await res.json();
     if (!res.ok) {
-      const error: IError = new Error(
-        data.message || "Failed to delete subcategory"
-      );
-      error.status = data.status;
-      error.details = data.details;
-      error.message = data.message;
+      const error: ApiError = {
+        name: "SubCategory Error",
+        status: data.status,
+        message: data.message,
+        code: data.code,
+        validationErrors: data.validationErrors,
+      };
       error.code = data.code;
       throw error;
     }

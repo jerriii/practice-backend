@@ -50,12 +50,12 @@ export class ProductServices {
   }> {
     const page = parseInt(queryParams.page) || 1;
     const limit = parseInt(queryParams.limit) || 10;
-    const isActive =
-      queryParams.isActive === "all" ? undefined : queryParams.isActive;
+    // const isActive =
+    //   queryParams.isActive === "all" ? undefined : queryParams.isActive;
     const search = queryParams.search;
 
     const query: any = {};
-    if (isActive !== undefined) query.isActive = isActive === "true";
+    // if (isActive !== undefined) query.isActive = isActive === "true";
     if (search) {
       // First, find categories that match the search term
       const matchingCategories = await Category.find({
@@ -75,7 +75,7 @@ export class ProductServices {
         { subcategoryId: { $in: subCategoryIds } },
       ];
     }
-    const [products, total] = await Promise.all([
+    const [products, count] = await Promise.all([
       this.productRepository.findAll(query, page, limit),
       this.productRepository.count(query),
     ]);
@@ -84,8 +84,8 @@ export class ProductServices {
       pagination: {
         page: page,
         limit: limit,
-        totalData: total,
-        totalPages: Math.ceil(total / limit),
+        totalData: count,
+        totalPages: Math.ceil(count / limit),
       },
     };
   }

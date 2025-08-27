@@ -11,13 +11,6 @@ export interface NameValueObject {
   value: string | number | boolean;
 }
 
-export interface IError {
-  status?: number;
-  details?: unknown;
-  message?: string;
-  code?: string;
-}
-
 export interface CollectionResponse<T> {
   status: string;
   message: string;
@@ -38,7 +31,7 @@ export interface ApiError extends Error {
   status: Exclude<ToastType, "success" | "info">;
   message: string;
   code?: number;
-  details?: {
+  validationErrors?: {
     field: string;
     message: string;
   }[];

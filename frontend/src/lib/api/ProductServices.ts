@@ -1,16 +1,29 @@
-class ProductServices {
-    private readonly baseUrl:string;
-    constructor() {
-        this.baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-    }
-    static getProductsBySlugAndQueryEndpoint(slug:string, page = 1, limit = 8, queryString:string): string {
-        return `/products/${slug}?page=${page}&limit=${limit}&${queryString}`;
-    }
-    getProductsBySlugAndQuery = async <T>(slug:string, page = 1, limit = 8, queryString:string):Promise<T> => {
-        const url = `${this.baseUrl}${ProductServices.getProductsBySlugAndQueryEndpoint(slug, page, limit, queryString)}`;
-        const response = await fetch(url);
-        return response.json();
-    }
-}
+import { ApiError, CollectionResponse } from "@/types";
+import { IProduct } from "@/types/products";
 
-export default new ProductServices();
+export class ProductServices {
+  private static readonly baseUrl: string =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "";
+
+  static async getAllProducts(
+    slug?: string,
+    page?: number,
+    limit?: number
+  ): Promise<CollectionResponse<IProduct[]>> {
+    console.log("Fetching products with:", { slug, page, limit });
+    const res = await fetch(`${this.baseUrl}/products`);
+    const data = await res.json();
+    if (!res.ok) {
+      const error: ApiError = {
+        name: "Product Error",
+        status: data.status,
+        message: data.message,
+        code: data.code,
+        validationErrors: data.validationErrors,
+      };
+
+      throw error;
+    }
+    return data;
+  }
+}

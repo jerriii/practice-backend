@@ -31,7 +31,7 @@ export class ProductRepository {
   }
 
   async findAll(
-    query: any,
+    query?: any,
     page: number = 1,
     limit: number = 10
   ): Promise<IProduct[]> {

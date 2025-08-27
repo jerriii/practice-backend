@@ -128,10 +128,10 @@ export default function EditCategories({
   useEffect(() => {
     if (
       updateCategoryError &&
-      Array.isArray((updateCategoryError as ApiError)?.details)
+      Array.isArray((updateCategoryError as ApiError)?.validationErrors)
     ) {
       const fieldErrors: Record<string, string> = {};
-      (updateCategoryError as ApiError)?.details?.forEach(
+      (updateCategoryError as ApiError)?.validationErrors?.forEach(
         (detail: { field: string; message: string }) => {
           fieldErrors[detail.field] = detail.message;
         }

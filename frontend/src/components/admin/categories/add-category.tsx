@@ -149,9 +149,9 @@ export default function AddCategories({
   useEffect(() => {
     console.log("API error:", error);
     console.log("isError:", isError);
-    if (isError && Array.isArray((error as ApiError)?.details)) {
+    if (isError && Array.isArray((error as ApiError)?.validationErrors)) {
       const fieldErrors: Record<string, string> = {};
-      (error as ApiError)?.details?.forEach(
+      (error as ApiError)?.validationErrors?.forEach(
         (detail: { field: string; message: string }) => {
           fieldErrors[detail.field] = detail.message;
         }

@@ -24,87 +24,12 @@ import {
 import AdminDashboardLayout from "../dashboard/admin-dashboard-layout";
 import AddProducts from "./add-products";
 import Image from "next/image";
-import { NameValueObject } from "@/types";
-
-interface Products {
-  id: number;
-  name: string;
-  categoryId: NameValueObject;
-  subcategoryId: NameValueObject;
-  price: string;
-  stock: number;
-  status: string;
-  image: string;
-}
-
-// Mock data
-const products: Products[] = [
-  {
-    id: 1,
-    name: "iPhone 15 Pro",
-    categoryId: { name: "Electronics", value: 1 },
-    subcategoryId: { name: "Smartphones", value: 1 },
-    price: "$999",
-    stock: 45,
-    status: "Active",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 2,
-    name: "MacBook Air M2",
-    categoryId: { name: "Electronics", value: 1 },
-    subcategoryId: { name: "Laptops", value: 2 },
-    price: "$1,199",
-    stock: 23,
-    status: "Active",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 3,
-    name: "Nike Air Max",
-    categoryId: { name: "Fashion", value: 2 },
-    subcategoryId: { name: "Men's Clothing", value: 3 },
-    price: "$129",
-    stock: 67,
-    status: "Active",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 4,
-    name: "Samsung 4K TV",
-    categoryId: { name: "Electronics", value: 1 },
-    subcategoryId: { name: "TVs", value: 4 },
-    price: "$799",
-    stock: 12,
-    status: "Low Stock",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 5,
-    name: "Coffee Maker",
-    categoryId: { name: "Home & Garden", value: 3 },
-    subcategoryId: { name: "Kitchen Appliances", value: 5 },
-    price: "$89",
-    stock: 0,
-    status: "Out of Stock",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-];
+import useGetProductsWithQuery from "@/hooks/Products";
 
 export default function ProductsPage() {
+  const { products, loading, error, refetch } = useGetProductsWithQuery();
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.categoryId.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      product.subcategoryId.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -118,6 +43,22 @@ export default function ProductsPage() {
         return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return (
+      <div>
+        Error loading products. <Button onClick={() => refetch()}>Retry</Button>
+      </div>
+    );
+  }
+
+  if (!products) {
+    return <div>No products found</div>;
+  }
 
   return (
     <AdminDashboardLayout breadcrumbs={[{ label: "Products" }]}>
@@ -165,11 +106,11 @@ export default function ProductsPage() {
                   <TableHead>Price</TableHead>
                   <TableHead>Stock</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProducts.map((product) => (
+                {products.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
                       <div className="flex items-center space-x-3">
@@ -190,13 +131,13 @@ export default function ProductsPage() {
                     </TableCell>
                     <TableCell>
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/50 text-secondary-foreground">
-                        {product.subcategoryId.name}
+                        {product.subCategoryId.name}
                       </span>
                     </TableCell>
                     <TableCell className="font-medium">
                       {product.price}
                     </TableCell>
-                    <TableCell>{product.stock}</TableCell>
+                    <TableCell>{product.productCount}</TableCell>
                     <TableCell>
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(product.status)}`}

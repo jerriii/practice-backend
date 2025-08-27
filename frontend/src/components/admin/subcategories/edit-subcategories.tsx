@@ -179,10 +179,10 @@ export default function EditSubCategories({
   useEffect(() => {
     if (
       updateSubCategoryError &&
-      Array.isArray((updateSubCategoryError as ApiError)?.details)
+      Array.isArray((updateSubCategoryError as ApiError)?.validationErrors)
     ) {
       const fieldErrors: Record<string, string> = {};
-      (updateSubCategoryError as ApiError)?.details?.forEach(
+      (updateSubCategoryError as ApiError)?.validationErrors?.forEach(
         (detail: { field: string; message: string }) => {
           fieldErrors[detail.field] = detail.message;
         }
